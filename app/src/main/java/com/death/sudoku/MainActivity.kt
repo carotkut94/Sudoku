@@ -1,4 +1,4 @@
-package com.example.sudoku
+package com.death.sudoku
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.sudoku.ui.theme.SudokuTheme
+import com.death.sudoku.ui.theme.SudokuTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

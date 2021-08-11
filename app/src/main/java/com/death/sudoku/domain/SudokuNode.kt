@@ -1,4 +1,6 @@
-package com.example.sudoku.domain
+package com.death.sudoku.domain
+
+import java.io.Serializable
 
 
 /**
@@ -10,7 +12,7 @@ data class SudokuNode(
     val y: Int,
     var color: Int = 0,
     var readOnly: Boolean = true,
-){
+):Serializable{
     override fun hashCode(): Int {
         return getHash(x, y)
     }

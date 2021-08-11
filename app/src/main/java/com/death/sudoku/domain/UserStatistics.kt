@@ -1,4 +1,4 @@
-package com.example.sudoku.domain
+package com.death.sudoku.domain
 
 data class UserStatistics(
     val fourEasy: Long = 0,
