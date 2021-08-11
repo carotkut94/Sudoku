@@ -80,7 +80,7 @@ class GameRepositoryImpl(
     }
 
     private fun puzzleComplete(currentGame: SudokuPuzzle): Boolean {
-
+        return true
     }
 
     override suspend fun getCurrentGame(
