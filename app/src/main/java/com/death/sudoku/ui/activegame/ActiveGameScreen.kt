@@ -1,32 +1,44 @@
 package com.death.sudoku.ui.activegame
 
+import android.os.health.TimerStat
+import android.widget.Space
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
@@ -40,9 +52,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.death.sudoku.R
+import com.death.sudoku.common.toTime
 import com.death.sudoku.computation.sqrt
+import com.death.sudoku.ui.activeGameSubtitle
 import com.death.sudoku.ui.components.AppToolbar
 import com.death.sudoku.ui.components.LoadingScreen
+import com.death.sudoku.ui.inputButton
 import com.death.sudoku.ui.mutableSudokuSquare
 import com.death.sudoku.ui.readOnlySudokuSquare
 import com.death.sudoku.ui.textColorDark
@@ -201,27 +216,108 @@ fun GameContent(onEventHandler: (ActiveGameEvent) -> Unit, viewModel: ActiveGame
                         imageVector = Icons.Filled.Star,
                         contentDescription = stringResource(id = R.string.difficulty),
                         tint = MaterialTheme.colors.secondary,
-                        modifier = Modifier.size(32.dp).padding(top=4.dp)
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(top = 4.dp)
                     )
                 }
             }
 
             Box(
-                Modifier.wrapContentSize()
-                    .constrainAs(timer){
+                Modifier
+                    .wrapContentSize()
+                    .constrainAs(timer) {
                         top.linkTo(board.bottom)
                         start.linkTo(parent.start)
-                    }.padding(start = 16.dp)
-            ){
+                    }
+                    .padding(start = 16.dp)
+            ) {
                 TimerText(viewModel)
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .constrainAs(inputs) {
+                        top.linkTo(timer.bottom)
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (viewModel.boundary == 4) {
+                    InputButtonRow(
+                        (0..4).toList(),
+                        onEventHandler
+                    )
+                } else {
+                    InputButtonRow(
+                        (0..4).toList(),
+                        onEventHandler
+                    )
+                    InputButtonRow(
+                        (5..9).toList(),
+                        onEventHandler
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun TimerText(viewModel: ActiveGameViewModel) {
+fun InputButtonRow(numbers: List<Int>, onEventHandler: (ActiveGameEvent) -> Unit) {
+    Row {
+        numbers.forEach {
+            SudokuInputButton(
+                onEventHandler,
+                it
+            )
+        }
+    }
 
+    Spacer(modifier = Modifier.size(2.dp))
+}
+
+@Composable
+fun SudokuInputButton(onEventHandler: (ActiveGameEvent) -> Unit, number: Int) {
+    TextButton(
+        onClick = {
+            onEventHandler.invoke(ActiveGameEvent.OnInput(number))
+        },
+        border = BorderStroke(
+            ButtonDefaults.OutlinedBorderSize, MaterialTheme.colors.onPrimary
+        ),
+        modifier = Modifier
+            .requiredSize(56.dp)
+            .padding(2.dp)
+    ) {
+        Text(
+            text = number.toString(),
+            style = inputButton.copy(
+                color = MaterialTheme.colors.onPrimary
+            ),
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun TimerText(viewModel: ActiveGameViewModel) {
+    var timeState by remember {
+        mutableStateOf("")
+    }
+
+    viewModel.subTimerState = {
+        timeState = it.toTime()
+    }
+
+    Text(
+        modifier = Modifier.requiredHeight(36.dp),
+        text = timeState,
+        style = activeGameSubtitle.copy(
+            color = MaterialTheme.colors.secondary
+        )
+    )
 }
 
 @Composable
@@ -316,6 +412,29 @@ fun SudokuTextFields(
                         (tileOffset * (tile.y - 1)).dp
                     )
                     .size(tileOffset.dp)
+            )
+        }
+    }
+}
+
+
+@Composable
+fun GameCompleteContent(timerState: Long, isNewRecordState: Boolean){
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.primary),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier.wrapContentSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Image(
+                contentDescription = stringResource(id = R.string.game_complete),
+                imageVector = Icons.Filled.EmojiEvents,
+
             )
         }
     }
